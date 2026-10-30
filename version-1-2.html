@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="es-PE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1554c9">
+<title>ComparaFácil Perú 1.2</title>
+<style>
+:root{font-family:system-ui,-apple-system,Arial,sans-serif;color:#19283f;background:#f4f7fc}
+*{box-sizing:border-box}
+body{margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #78a9ff;outline-offset:2px}
+header{background:linear-gradient(120deg,#123b91,#216af0);color:white;padding:22px 17px}
+.wrap{max-width:950px;margin:auto}
+.logo{font-size:clamp(24px,5vw,34px);font-weight:800}
+.subtitle{color:#e3ecff;margin:6px 0 18px}
+nav{display:flex;gap:5px;justify-content:space-between}
+nav button{border:0;color:white;background:transparent;border-radius:10px;padding:12px 8px}
+nav button.active{background:#ffffff30}
+main{max-width:950px;margin:22px auto;padding:0 15px;min-height:55vh}
+.panel{background:white;border:1px solid #e3e9f3;border-radius:22px;padding:clamp(20px,5vw,32px);margin-bottom:16px;box-shadow:0 10px 30px #153e8010}
+h1{font-size:clamp(27px,5vw,39px);line-height:1.2}
+h2{font-size:clamp(22px,4vw,28px)}
+h3{margin:10px 0}
+p{line-height:1.55;color:#5b687c}
+small,.muted{color:#68778d}
+.pill{display:inline-block;background:#e5f5ec;color:#176b47;padding:8px 13px;border-radius:25px;font-size:14px;font-weight:700}
+.primary,.secondary,.choice{border:0;border-radius:12px;padding:15px 17px;min-height:49px}
+.primary{background:#175de5;color:white;font-weight:700}
+.secondary{background:#eaf0fa;color:#213856}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px}
+.tile,.product{border:1px solid #e1e7f1;border-radius:16px;padding:17px;background:white}
+.tile strong{display:block;margin:8px 0}
+.progress{height:9px;background:#e7edf7;border-radius:20px;overflow:hidden;margin:16px 0 25px}
+.progress span{display:block;height:100%;background:#2468e9}
+.choices{display:grid;gap:10px;margin:20px 0}
+.choice{text-align:left;background:#f0f4fc;border:2px solid transparent}
+.choice:hover,.choice.selected{border-color:#2468e9}
+.notice{background:#f0f5fd;border-left:4px solid #3074e9;padding:14px;border-radius:9px;margin:15px 0}
+.warning{background:#fff6e8;border-left:4px solid #d88c16;padding:14px;border-radius:9px;margin:15px 0}
+.product{margin:12px 0}
+.product h3{font-size:20px}
+.specs{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}
+.specs span{background:#edf2fa;border-radius:8px;padding:7px 9px;font-size:13px}
+input[type=search],select{width:100%;border:1px solid #c9d4e4;border-radius:12px;padding:13px;background:white;margin:7px 0 13px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{border-bottom:1px solid #e1e7f0;padding:12px 9px;text-align:left;vertical-align:top}
+th{background:#edf3fc}
+.tablewrap{overflow-x:auto}
+footer{text-align:center;padding:24px 12px;color:#718096}
+footer button{border:0;background:none;color:#245bbd;text-decoration:underline;padding:12px}
+@media(max-width:480px){.actions button{width:100%}.logo{font-size:27px}nav button{font-size:14px}}
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<div class="logo">✦ ComparaFácil Perú</div>
+<p class="subtitle">Compara mejor. Decide con confianza.</p>
+<nav>
+<button data-page="home" class="active">Inicio</button>
+<button data-page="quiz">Test</button>
+<button data-page="catalog">Catálogo</button>
+<button data-page="compare">Comparar</button>
+</nav>
+</div>
+</header>
+<main id="app"></main>
+<footer>
+ComparaFácil Perú · Versión 1.2 · Demostración
+<div><button id="privacy">Privacidad y transparencia</button></div>
+</footer>
+<script>
+"use strict";
+const app=document.getElementById("app");
+let page="home",step=0,answers={};
+let selected=new Set();
+
+const questions=[
+{key:"budget",title:"¿Cuál es tu presupuesto máximo?",options:[
+["700","Hasta S/ 700"],
+["1200","Hasta S/ 1.200"],
+["2000","Hasta S/ 2.000"],
+["999999","Más de S/ 2.000"]
+]},
+{key:"priority",title:"¿Qué característica es más importante?",options:[
+["camera","Cámara y video"],
+["battery","Duración de batería"],
+["speed","Rendimiento"],
+["balance","Equilibrio general"]
+]},
+{key:"usage",title:"¿Para qué utilizarás el celular?",options:[
+["social","Redes sociales"],
+["work","Trabajo y estudios"],
+["gaming","Videojuegos"],
+["content","Creación de contenido"]
+]},
+{key:"size",title:"¿Qué tamaño prefieres?",options:[
+["compact","Compacto"],
+["large","Pantalla grande"],
+["either","Sin preferencia"]
+]}
+];
+
+// Catálogo demostrativo. Los precios NO están verificados.
+// No asignar un precio hasta comprobarlo con una fuente.
+const phones=[
+{id:"a16",name:"Samsung Galaxy A16 5G",brand:"Samsung",screen:6.7,price:null,priceChecked:null,traits:["battery","balance","social","work"],description:"Perfil de uso cotidiano y pantalla amplia."},
+{id:"g85",name:"Motorola moto g85 5G",brand:"Motorola",screen:6.67,price:null,priceChecked:null,traits:["balance","battery","social","work"],description:"Perfil equilibrado para comunicación y multimedia."},
+{id:"rn14",name:"Redmi Note 14 Pro 5G",brand:"Xiaomi",screen:6.67,price:null,priceChecked:null,traits:["camera","content","balance","social"],description:"Perfil orientado a fotografía y contenido."},
+{id:"x7",name:"POCO X7 Pro",brand:"POCO",screen:6.67,price:null,priceChecked:null,traits:["speed","gaming","battery"],description:"Perfil orientado a videojuegos y rendimiento."},
+{id:"s25",name:"Samsung Galaxy S25",brand:"Samsung",screen:6.2,price:null,priceChecked:null,traits:["camera","speed","content","gaming"],description:"Perfil de gama alta y formato compacto."}
+];
+
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",
+'"':"&quot;","'":"&#39;"
+}[c]));
+
+function nav(p){
+page=p;
+document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===p));
+render();
+window.scrollTo(0,0);
+}
+function start(){
+answers={};step=0;nav("quiz");
+}
+function budgetText(){
+const q=questions[0];
+return q.options.find(x=>x[0]===answers.budget)?.[1]||"Sin definir";
+}
+function score(p){
+let points=0;
+if(p.traits.includes(answers.priority))points+=5;
+if(p.traits.includes(answers.usage))points+=4;
+if(answers.size==="either")points+=1;
+else if(answers.size==="compact"&&p.screen<=6.3)points+=3;
+else if(answers.size==="large"&&p.screen>=6.6)points+=3;
+return points;
+}
+function verified(p){
+return typeof p.price==="number"&&
+p.price>=0&&typeof p.priceChecked==="string"&&
+/^\d{4}-\d{2}-\d{2}$/.test(p.priceChecked);
+}
+function withinBudget(p){
+return verified(p)&&p.price<=Number(answers.budget);
+}
+function home(){
+app.innerHTML=`
+<section class="panel">
+<span class="pill">✨ Nueva versión 1.2</span>
+<h1>Elige tu próximo celular con más información.</h1>
+<p>Responde cuatro preguntas, descubre modelos compatibles con tus preferencias y compáralos en un solo lugar.</p>
+<div class="actions">
+<button class="primary" id="start">Comenzar test →</button>
+<button class="secondary" id="browse">Ver catálogo</button>
+</div>
+</section>
+<div class="grid">
+<div class="tile">🎯<strong>Recomendaciones explicadas</strong><p>Conoce por qué aparece cada modelo.</p></div>
+<div class="tile">💰<strong>Presupuesto transparente</strong><p>No afirmamos que un producto esté dentro de tu presupuesto sin precio verificado.</p></div>
+<div class="tile">⚖️<strong>Comparador</strong><p>Selecciona hasta tres celulares para comparar.</p></div>
+</div>`;
+document.getElementById("start").onclick=start;
+document.getElementById("browse").onclick=()=>nav("catalog");
+}
+function quiz(){
+const q=questions[step];
+app.innerHTML=`
+<section class="panel">
+<span class="muted">Pregunta ${step+1} de 4</span>
+<div class="progress"><span style="width:${step*25}%"></span></div>
+<h2>${q.title}</h2>
+<div class="choices">
+${q.options.map(([v,label])=>`
+<button class="choice ${answers[q.key]===v?"selected":""}" data-value="${v}">${label}</button>`).join("")}
+</div>
+<button class="secondary" id="back">← Atrás</button>
+</section>`;
+document.querySelectorAll("[data-value]").forEach(b=>b.onclick=()=>{
+answers[q.key]=b.dataset.value;
+if(step<3){step++;quiz();window.scrollTo(0,0)}
+else nav("results");
+});
+document.getElementById("back").onclick=()=>{
+if(step){step--;quiz()}else nav("home");
+};
+}
+function card(p,rank=false){
+return `<article class="product">
+${rank?`<span class="pill">Opción ${rank}</span>`:""}
+<h3>${esc(p.name)}</h3>
+<p>${esc(p.description)}</p>
+<div class="specs">
+<span>Marca: ${esc(p.brand)}</span>
+<span>Pantalla: ${p.screen.toLocaleString("es-PE")}″</span>
+</div>
+<p><strong>Precio:</strong> ${verified(p)?"S/ "+p.price.toLocaleString("es-PE"):"No verificado"}</p>
+${rank?`<p class="muted">Coincidencia orientativa de características: ${score(p)} puntos. No equivale a una prueba técnica.</p>`:""}
+${rank?`<p class="warning">No se puede confirmar que este modelo cumpla tu presupuesto sin un precio actualizado y verificable.</p>`:""}
+<label><input type="checkbox" data-id="${p.id}" ${selected.has(p.id)?"checked":""}> Añadir a comparación</label>
+</article>`;
+}
+function wireCards(){
+document.querySelectorAll("[data-id]").forEach(el=>el.onchange=()=>{
+const id=el.dataset.id;
+if(el.checked){
+if(selected.size>=3){
+el.checked=false;
+alert("Puedes comparar un máximo de tres celulares.");
+return;
+}
+selected.add(id);
+}else selected.delete(id);
+});
+}
+function results(){
+if(questions.some(q=>!answers[q.key])){start();return}
+const eligible=phones.filter(withinBudget).sort((a,b)=>score(b)-score(a));
+const exploratory=[...phones].sort((a,b)=>score(b)-score(a)).slice(0,3);
+const list=eligible.length?eligible.slice(0,3):exploratory;
+app.innerHTML=`
+<section class="panel">
+<span class="pill">✓ Test completado</span>
+<h1>Resultados personalizados</h1>
+<p><strong>Tu presupuesto:</strong> ${budgetText()}</p>
+${eligible.length?`
+<p>Modelos con precio registrado dentro del presupuesto:</p>`:`
+<div class="warning"><strong>No hay precios verificados disponibles.</strong>
+No podemos asegurar qué modelos cumplen tu presupuesto.
+Las siguientes opciones son únicamente candidatos para investigar por sus características.</div>`}
+${list.map((p,i)=>card(p,i+1)).join("")}
+<div class="actions">
+<button class="primary" id="compare">Comparar seleccionados</button>
+<button class="secondary" id="repeat">Repetir test</button>
+<button class="secondary" id="catalog">Catálogo completo</button>
+</div>
+</section>`;
+wireCards();
+document.getElementById("compare").onclick=()=>nav("compare");
+document.getElementById("repeat").onclick=start;
+document.getElementById("catalog").onclick=()=>nav("catalog");
+}
+function catalog(){
+app.innerHTML=`
+<section class="panel">
+<span class="pill">Tecnología</span>
+<h1>Catálogo de celulares</h1>
+<p>Explora modelos reales con perfiles orientativos. Los precios y existencias aún no están verificados.</p>
+<label for="search">Buscar por marca o modelo</label>
+<input type="search" id="search" placeholder="Samsung, POCO, Redmi...">
+<label for="filter">Filtrar por perfil</label>
+<select id="filter">
+<option value="all">Todos</option>
+<option value="camera">Fotografía</option>
+<option value="battery">Batería</option>
+<option value="speed">Rendimiento</option>
+<option value="balance">Equilibrado</option>
+</select>
+<div id="items"></div>
+<button class="primary" id="compare">Comparar seleccionados</button>
+<div class="notice">No hay enlaces comerciales ni publicidad activa en esta demostración.</div>
+</section>`;
+const search=document.getElementById("search");
+const filter=document.getElementById("filter");
+function update(){
+const term=search.value.trim().toLowerCase();
+const list=phones.filter(p=>
+(p.name+" "+p.brand).toLowerCase().includes(term)&&
+(filter.value==="all"||p.traits.includes(filter.value)));
+document.getElementById("items").innerHTML=list.length?
+list.map(p=>card(p)).join(""):"<p>No se encontraron modelos.</p>";
+wireCards();
+}
+search.oninput=update;
+filter.onchange=update;
+document.getElementById("compare").onclick=()=>nav("compare");
+update();
+}
+function compare(){
+const list=phones.filter(p=>selected.has(p.id));
+app.innerHTML=`
+<section class="panel">
+<h1>Comparador de celulares</h1>
+<p>Selecciona hasta tres modelos desde el catálogo o los resultados del test.</p>
+${list.length?`
+<div class="tablewrap"><table>
+<thead><tr><th>Característica</th>${list.map(p=>`<th>${esc(p.name)}</th>`).join("")}</tr></thead>
+<tbody>
+<tr><td>Marca</td>${list.map(p=>`<td>${esc(p.brand)}</td>`).join("")}</tr>
+<tr><td>Pantalla</td>${list.map(p=>`<td>${p.screen.toLocaleString("es-PE")}″</td>`).join("")}</tr>
+<tr><td>Perfil</td>${list.map(p=>`<td>${esc(p.description)}</td>`).join("")}</tr>
+<tr><td>Precio</td>${list.map(p=>`<td>${verified(p)?"S/ "+p.price:"No verificado"}</td>`).join("")}</tr>
+</tbody></table></div>`:
+`<div class="notice">Todavía no has seleccionado ningún modelo.</div>`}
+<div class="actions">
+<button class="primary" id="browse">Elegir modelos</button>
+<button class="secondary" id="clear">Limpiar selección</button>
+</div>
+</section>`;
+document.getElementById("browse").onclick=()=>nav("catalog");
+document.getElementById("clear").onclick=()=>{
+selected.clear();compare();
+};
+}
+function privacy(){
+app.innerHTML=`
+<section class="panel">
+<h1>Privacidad y transparencia</h1>
+<p>Esta demostración procesa las respuestas del cuestionario dentro de tu navegador. No solicita cuentas ni envía las respuestas a un servidor propio.</p>
+<p>El catálogo es ilustrativo y no consulta tiendas en tiempo real. No hay precios, disponibilidad, publicidad ni afiliaciones verificadas.</p>
+<p>Las coincidencias se calculan mediante reglas sencillas y no constituyen pruebas técnicas independientes.</p>
+<p>Antes de comprar, verifica el modelo exacto, el precio, la garantía y las especificaciones con el vendedor.</p>
+<button class="primary" id="home">Volver al inicio</button>
+</section>`;
+document.getElementById("home").onclick=()=>nav("home");
+window.scrollTo(0,0);
+}
+function render(){
+if(page==="home")home();
+else if(page==="quiz")quiz();
+else if(page==="results")results();
+else if(page==="catalog")catalog();
+else if(page==="compare")compare();
+else privacy();
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>nav(b.dataset.page));
+document.getElementById("privacy").onclick=()=>nav("privacy");
+render();
+</script>
+</body>
+</html>
