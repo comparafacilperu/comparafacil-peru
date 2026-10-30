@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es-PE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1554c9">
+<title>ComparaFácil Perú 1.4</title>
+<style>
+:root{font-family:system-ui,-apple-system,Arial,sans-serif;color:#203047;background:#f3f6fc}
+*{box-sizing:border-box}
+body{margin:0}
+header{background:linear-gradient(120deg,#194aa0,#2067ee);color:white;padding:25px 16px}
+header .wrap{max-width:980px;margin:auto}
+h1{font-size:clamp(26px,5vw,38px);margin:0}
+header p{color:#e4edff}
+nav{display:flex;gap:6px;justify-content:space-between;margin-top:25px}
+nav button{background:transparent;color:white;padding:12px 9px}
+nav button.active{background:#ffffff30}
+button,input,select{font:inherit}
+button{border:0;border-radius:13px;padding:14px 17px;cursor:pointer}
+button.primary{background:#1763e7;color:white;font-weight:650}
+button.secondary{background:#e8effb;color:#263b5a}
+main{max-width:980px;margin:25px auto;padding:0 15px;min-height:65vh}
+.panel{background:white;border:1px solid #e0e5ec;border-radius:25px;padding:clamp(20px,5vw,34px);margin-bottom:20px;box-shadow:0 10px 28px #1b4d8a0c}
+h2{font-size:clamp(25px,5vw,35px);margin:10px 0 18px}
+h3{margin:5px 0 10px;font-size:23px}
+.muted{color:#637186;line-height:1.65}
+.pill{display:inline-block;background:#e4f5ec;color:#156a4d;padding:8px 13px;border-radius:50px;font-weight:600}
+.notice{background:#fff5e5;border-left:5px solid #d89418;padding:15px;border-radius:12px;line-height:1.55}
+.info{background:#edf3ff;border-left:5px solid #377bdc;padding:15px;border-radius:12px;line-height:1.55}
+.stack{display:grid;gap:12px}
+.wide{width:100%}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:16px}
+.card{border:1px solid #dfe5ed;border-radius:22px;padding:22px;background:#fff}
+.spec{display:grid;grid-template-columns:115px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid #eef0f4}
+.spec strong{color:#536378}
+.tag{display:inline-block;background:#edf2fa;border-radius:10px;padding:6px 10px;margin:4px 4px 4px 0;font-size:14px}
+.field{width:100%;border:1px solid #cad4df;border-radius:13px;padding:13px;margin:7px 0 15px;background:white}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.step{height:8px;background:#e6ecf6;border-radius:10px;overflow:hidden;margin:20px 0}
+.step span{display:block;background:#2467df;height:100%}
+.choice{text-align:left;width:100%;background:#edf2fb;padding:18px}
+.phone{height:100px;display:grid;place-items:center;background:linear-gradient(135deg,#edf4ff,#dfeaf8);border-radius:18px;margin-bottom:15px;color:#3767b6;font-size:40px}
+a{color:#145cc9;overflow-wrap:anywhere}
+.small{font-size:13px}
+.count{color:#155ab7;font-weight:700}
+footer{text-align:center;padding:25px;color:#718097}
+@media(max-width:420px){nav button{font-size:14px;padding:11px 5px}.spec{grid-template-columns:105px 1fr}.panel{padding:20px}}
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<h1>✦ ComparaFácil Perú</h1>
+<p>Compara mejor. Decide con confianza.</p>
+<nav id="nav"></nav>
+</div>
+</header>
+<main id="app"></main>
+<footer>ComparaFácil Perú · Versión 1.4 · Prototipo informativo<br><a href="#" id="privacy">Privacidad y transparencia</a></footer>
+<script>
+'use strict';
+const phones=[
+{id:'a16',name:'Samsung Galaxy A16 5G',brand:'Samsung',screen:'6.7″ Super AMOLED FHD+',size:6.7,chip:'Exynos 1330',camera:'50 + 5 + 2 MP',mainMP:50,battery:5000,ram:'4/8 GB según variante',storage:'128/256 GB según variante',charging:'25 W',ip:'IP54',profile:'Uso diario y batería',tags:['bateria','equilibrio'],photo:0,performance:2,source:'https://news.samsung.com/pe/los-samsung-galaxy-a16-y-a16-5g-llegan-con-hasta-seis-actualizaciones-del-sistema-android-y-seguridad',offers:[]},
+{id:'redmi',name:'Redmi Note 14 Pro 5G',brand:'Xiaomi',screen:'6.67″ AMOLED 1.5K, 120 Hz',size:6.67,chip:'Dimensity 7300-Ultra',camera:'200 + 8 + 2 MP, OIS',mainMP:200,battery:5110,ram:'8/12 GB según variante',storage:'256/512 GB según variante',charging:'45 W',ip:'IP68',profile:'Fotografía y multimedia',tags:['camara','rendimiento'],photo:3,performance:3,source:'https://www.mi.com/pe/product/redmi-note-14-pro-5g/specs/',offers:[{shop:'Hiraoka',price:1599,variant:'8 GB / 256 GB',url:'https://hiraoka.com.pe/celulares-y-telefonia/celulares/smartphones/celular-libre-xiaomi-redmi-note-14-pro-5g-6-6-256gb-8gb-negro',checked:'Referencia encontrada en ficha indexada hace meses; no verificada hoy',fresh:false}]},
+{id:'g85',name:'Motorola moto g85 5G',brand:'Motorola',screen:'6.7″ pOLED FHD+, 120 Hz',size:6.7,chip:'Snapdragon 6s Gen 3',camera:'50 + 8 MP',mainMP:50,battery:5000,ram:'8 GB (variante documentada)',storage:'128/256 GB según variante',charging:'30 W (Motorola Perú)',ip:'IP52',profile:'Pantalla y uso equilibrado',tags:['equilibrio','bateria'],photo:1,performance:2,source:'https://es-latam.support.motorola.com/app/answers/detail/a_id/180548/p/30%2C7494%2C7826%2C',offers:[]}
+];
+const questions=[
+{title:'¿Cuál es tu presupuesto máximo?',options:[['Hasta S/ 800',800],['Hasta S/ 1.200',1200],['Hasta S/ 2.000',2000],['Más de S/ 2.000',999999]]},
+{title:'¿Qué es más importante?',options:[['Cámara y video','camara'],['Duración de batería','bateria'],['Rendimiento','rendimiento'],['Equilibrio general','equilibrio']]},
+{title:'¿Para qué usarás el celular?',options:[['Redes sociales','redes'],['Trabajo y estudios','trabajo'],['Videojuegos','juegos'],['Creación de contenido','contenido']]},
+{title:'¿Qué tamaño prefieres?',options:[['Compacto','compacto'],['Pantalla grande','grande'],['Sin preferencia','cualquiera']]}
+];
+let page='inicio',step=0,answers=[],selected=new Set(),search='',filter='todos';
+const app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const byId=id=>phones.find(p=>p.id===id);
+const fmt=n=>'S/ '+n.toLocaleString('es-PE');
+function go(p){page=p;render();window.scrollTo(0,0)}
+function render(){
+document.getElementById('nav').innerHTML=['inicio','test','catalogo','comparar'].map(p=>`<button class="${page===p?'active':''}" data-page="${p}">${{inicio:'Inicio',test:'Test',catalogo:'Catálogo',comparar:'Comparar'}[p]}</button>`).join('');
+app.innerHTML=page==='inicio'?home():page==='test'?test():page==='resultados'?results():page==='catalogo'?catalog():page==='comparar'?compare():privacy();
+}
+function home(){
+return `<section class="panel"><span class="pill">✨ Nueva versión 1.4</span><h2>Encuentra tu próximo celular con datos verificables.</h2><p class="muted">Responde cuatro preguntas, consulta fichas técnicas oficiales y compara tres equipos. Las ofertas sin verificación reciente se identifican claramente.</p><div class="stack"><button class="primary wide" data-page="test">Comenzar test →</button><button class="secondary wide" data-page="catalogo">Explorar catálogo</button></div></section><div class="grid"><div class="panel"><h3>📋 Datos oficiales</h3><p class="muted">Especificaciones con enlace al fabricante.</p></div><div class="panel"><h3>💰 Precios transparentes</h3><p class="muted">Diferenciamos ofertas vigentes verificadas de referencias históricas.</p></div><div class="panel"><h3>⚖️ Comparación móvil</h3><p class="muted">Tarjetas claras para comparar hasta tres equipos.</p></div></div>`;
+}
+function test(){
+if(step>=4)return results();
+const q=questions[step];
+return `<section class="panel"><p class="muted">Pregunta ${step+1} de 4</p><div class="step"><span style="width:${(step+1)*25}%"></span></div><h2>${q.title}</h2><div class="stack">${q.options.map(([label,v],i)=>`<button class="choice" data-answer="${i}">${esc(label)}</button>`).join('')}</div>${step?'<p><button class="secondary" id="back">← Atrás</button></p>':''}</section>`;
+}
+function rank(p){
+let n=0;
+const priority=answers[1],use=answers[2],size=answers[3];
+if(p.tags.includes(priority))n+=5;
+if(priority==='rendimiento')n+=p.performance;
+if(priority==='camara')n+=p.photo;
+if(use==='contenido'&&p.photo)n+=2;
+if(use==='juegos')n+=p.performance;
+if(size==='grande'&&p.size>=6.6)n++;
+if(size==='compacto'&&p.size<6.5)n+=2;
+return n;
+}
+function results(){
+let sorted=[...phones].sort((a,b)=>rank(b)-rank(a));
+let budget=answers[0]===999999?'Más de S/ 2.000':fmt(answers[0]||0);
+return `<section class="panel"><span class="pill">✓ Test completado</span><h2>Resultados personalizados</h2><p class="muted">Presupuesto: <strong>${budget}</strong></p><div class="notice"><strong>No hay precios vigentes verificados en esta muestra.</strong> Ordenamos modelos por características, pero no podemos confirmar que cumplan tu presupuesto. Una oferta histórica no demuestra disponibilidad ni precio actual.</div><div class="stack" style="margin-top:20px">${sorted.map((p,i)=>phoneCard(p,i+1,true)).join('')}</div><p class="count">${selected.size} de 3 seleccionados</p><div class="stack"><button class="primary" data-page="comparar">Comparar seleccionados</button><button class="secondary" id="restart">Repetir test</button><button class="secondary" data-page="catalogo">Catálogo completo</button></div></section>`;
+}
+function offer(p){
+if(!p.offers.length)return `<p class="muted"><strong>Precio:</strong> Sin oferta verificada.</p>`;
+return p.offers.map(o=>`<div class="notice"><strong>Referencia comercial: ${fmt(o.price)}</strong> · ${esc(o.shop)} · ${esc(o.variant)}<br><span class="small">${esc(o.checked)}. Comprueba precio y stock en la tienda.</span><br><a href="${esc(o.url)}" target="_blank" rel="noopener noreferrer">Consultar tienda ↗</a></div>`).join('');
+}
+function phoneCard(p,n,reason=false){
+return `<article class="card"><div class="phone" aria-hidden="true">📱</div>${n?`<span class="pill">Opción ${n}</span>`:''}<h3>${esc(p.name)}</h3><p class="muted">${esc(p.profile)}</p><span class="tag">${esc(p.brand)}</span><span class="tag">${esc(p.screen)}</span><div class="spec"><strong>Procesador</strong><span>${esc(p.chip)}</span></div><div class="spec"><strong>Cámara</strong><span>${esc(p.camera)}</span></div><div class="spec"><strong>Batería</strong><span>${p.battery.toLocaleString('es-PE')} mAh</span></div><div class="spec"><strong>RAM</strong><span>${esc(p.ram)}</span></div><div class="spec"><strong>Memoria</strong><span>${esc(p.storage)}</span></div><div class="spec"><strong>Carga</strong><span>${esc(p.charging)}</span></div><div class="spec"><strong>Protección</strong><span>${esc(p.ip)}</span></div>${reason?`<p class="muted"><strong>Por qué aparece:</strong> Coincidencia orientativa de ${rank(p)} puntos según tus respuestas; no es una prueba de rendimiento.</p>`:''}<p><a href="${esc(p.source)}" target="_blank" rel="noopener noreferrer">Ver ficha oficial ↗</a></p>${offer(p)}<label class="row" style="margin-top:17px"><input type="checkbox" data-check="${p.id}" ${selected.has(p.id)?'checked':''}> Añadir a comparación</label></article>`;
+}
+function catalog(){
+let visible=phones.filter(p=>(p.name+' '+p.brand).toLowerCase().includes(search.toLowerCase())&&(filter==='todos'||p.tags.includes(filter)));
+return `<section class="panel"><h2>Catálogo de celulares</h2><p class="muted">Tres modelos reales con fuentes oficiales. Las variantes de memoria pueden cambiar según la tienda.</p><label>Buscar por marca o modelo<input class="field" id="search" value="${esc(search)}" placeholder="Ej. Samsung"></label><label>Filtrar por perfil<select class="field" id="filter">${[['todos','Todos'],['camara','Fotografía'],['bateria','Batería'],['rendimiento','Rendimiento'],['equilibrio','Equilibrio']].map(([v,l])=>`<option value="${v}" ${filter===v?'selected':''}>${l}</option>`).join('')}</select></label><div class="grid" id="cards">${visible.map(p=>phoneCard(p)).join('')||'<p>No se encontraron modelos.</p>'}</div><p class="count">${selected.size} de 3 seleccionados</p><button class="primary wide" data-page="comparar">Comparar seleccionados</button><p class="info small">Los enlaces llevan a fabricantes o tiendas, no son enlaces de afiliados activos. No existe publicidad pagada en esta versión.</p></section>`;
+}
+function compare(){
+let arr=[...selected].map(byId).filter(Boolean);
+return `<section class="panel"><h2>Comparador de celulares</h2><p class="muted">Selecciona hasta tres modelos desde el catálogo o el test.</p><p class="count">${arr.length} de 3 modelos seleccionados</p>${arr.length?`<div class="grid">${arr.map(p=>`<article class="card"><h3>${esc(p.name)}</h3>${[['Marca',p.brand],['Pantalla',p.screen],['Procesador',p.chip],['Cámara',p.camera],['Batería',p.battery+' mAh'],['RAM',p.ram],['Almacenamiento',p.storage],['Carga',p.charging],['Protección',p.ip],['Precio vigente','No verificado']].map(([k,v])=>`<div class="spec"><strong>${k}</strong><span>${esc(v)}</span></div>`).join('')}<p><a href="${esc(p.source)}" target="_blank" rel="noopener noreferrer">Fuente oficial ↗</a></p><button class="secondary wide" data-remove="${p.id}">Quitar modelo</button></article>`).join('')}</div>`:'<div class="info">Todavía no has seleccionado ningún modelo.</div>'}<div class="stack" style="margin-top:18px"><button class="primary" data-page="catalogo">Elegir modelos</button><button class="secondary" id="clear">Limpiar selección</button></div></section>`;
+}
+function privacy(){
+return `<section class="panel"><h2>Privacidad y transparencia</h2><p>Este prototipo se ejecuta en tu navegador. Las respuestas del test y los modelos seleccionados no se envían a un servidor propio ni se guardan en una cuenta. No se han integrado analíticas, anuncios ni programas de afiliación.</p><p>Las especificaciones enlazan a fabricantes. Los precios pueden cambiar y las referencias antiguas se muestran como tales. Antes de comprar, revisa la variante exacta, el vendedor, la garantía, el stock y el precio final.</p><p>Los enlaces externos pueden aplicar sus propias políticas de privacidad.</p></section>`;
+}
+document.addEventListener('click',e=>{
+const nav=e.target.closest('[data-page]');
+if(nav){
+if(nav.dataset.page==='test'){step=0;answers=[]}
+go(nav.dataset.page);
+return;
+}
+const a=e.target.closest('[data-answer]');
+if(a){
+answers[step]=questions[step].options[+a.dataset.answer][1];
+step++;
+go(step===4?'resultados':'test');
+return;
+}
+if(e.target.id==='back'){step--;go('test')}
+if(e.target.id==='restart'){step=0;answers=[];go('test')}
+if(e.target.id==='clear'){selected.clear();render()}
+const r=e.target.closest('[data-remove]');
+if(r){selected.delete(r.dataset.remove);render()}
+if(e.target.id==='privacy'){e.preventDefault();go('privacidad')}
+});
+document.addEventListener('change',e=>{
+if(e.target.id==='filter'){filter=e.target.value;render()}
+if(e.target.dataset.check){
+let id=e.target.dataset.check;
+if(e.target.checked){
+if(selected.size>=3){alert('Puedes comparar un máximo de tres celulares.');e.target.checked=false;return}
+selected.add(id)
+}else selected.delete(id);
+render();
+}
+});
+document.addEventListener('input',e=>{
+if(e.target.id==='search'){
+const pos=e.target.selectionStart;
+search=e.target.value;
+const visible=phones.filter(p=>(p.name+' '+p.brand).toLowerCase().includes(search.toLowerCase())&&(filter==='todos'||p.tags.includes(filter)));
+document.getElementById('cards').innerHTML=visible.map(p=>phoneCard(p)).join('')||'<p>No se encontraron modelos.</p>';
+e.target.setSelectionRange(pos,pos);
+}
+});
+render();
+</script>
+</body>
+</html>
