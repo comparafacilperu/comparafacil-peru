@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#155eef">
+<title>ComparaFácil Perú</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f7fc;color:#17243a}
+header{background:#155eef;color:white;padding:20px}
+header h1{margin:0;font-size:25px}
+header p{margin:8px 0 0}
+main{max-width:700px;margin:auto;padding:16px}
+.card{background:white;border-radius:18px;padding:22px;margin:16px 0;box-shadow:0 4px 16px #182d4a12}
+h2{font-size:23px}
+button{background:#155eef;color:white;border:0;border-radius:12px;padding:15px;font-size:16px;cursor:pointer;width:100%;margin:7px 0}
+button:disabled{opacity:.4}
+.option{background:#f1f5ff;color:#17243a;text-align:left}
+.option.selected{background:#d9e6ff;border:2px solid #155eef}
+.secondary{background:#e9eef7;color:#17243a}
+small,.muted{color:#64748b}
+.tag{display:inline-block;background:#e6f4ea;color:#137333;border-radius:20px;padding:7px 12px;font-size:13px}
+nav{display:flex;gap:8px;overflow:auto;margin-top:16px}
+nav button{min-width:105px;font-size:14px}
+.hidden{display:none}
+.product{border:1px solid #dde4ef;padding:15px;border-radius:12px;margin:10px 0}
+footer{text-align:center;padding:24px;color:#64748b}
+</style>
+</head>
+<body>
+<header>
+<h1>✦ ComparaFácil Perú</h1>
+<p>Compara mejor. Decide con confianza.</p>
+<nav>
+<button onclick="show('home')">Inicio</button>
+<button onclick="show('quiz')">Test</button>
+<button onclick="show('catalog')">Catálogo</button>
+<button onclick="show('future')">Más</button>
+</nav>
+</header>
+<main>
+<section id="home" class="card">
+<span class="tag">Versión 1.0 · Demostración</span>
+<h2>Encuentra tu celular ideal</h2>
+<p>Responde tres preguntas y descubre qué características se ajustan mejor a ti.</p>
+<button onclick="start()">Comenzar test →</button>
+<h3>Próximamente</h3>
+<p>💳 Finanzas · 🛡️ Seguros · 🎓 Educación</p>
+</section>
+<section id="quiz" class="card hidden">
+<p class="muted" id="progress"></p>
+<h2 id="question"></h2>
+<div id="options"></div>
+<button class="secondary" onclick="back()">← Atrás</button>
+</section>
+<section id="result" class="card hidden">
+<span class="tag">Test completado</span>
+<h2>Tu recomendación</h2>
+<div id="recommendation"></div>
+<button onclick="show('catalog')">Explorar catálogo</button>
+<button class="secondary" onclick="start()">Repetir test</button>
+</section>
+<section id="catalog" class="card hidden">
+<h2>Catálogo de tecnología</h2>
+<p class="muted">Perfiles ilustrativos. No son ofertas comerciales ni precios verificados.</p>
+<div class="product">
+<h3>📱 Perfil económico</h3>
+<p>Para mensajes, redes sociales y tareas cotidianas.</p>
+</div>
+<div class="product">
+<h3>📸 Perfil fotográfico</h3>
+<p>Prioriza calidad de cámara y almacenamiento.</p>
+</div>
+<div class="product">
+<h3>🎮 Perfil rendimiento</h3>
+<p>Prioriza procesador, memoria y pantalla fluida.</p>
+</div>
+<h3>Espacio publicitario</h3>
+<p class="muted">Aquí se integrarán anuncios autorizados cuando la plataforma sea aprobada.</p>
+</section>
+<section id="future" class="card hidden">
+<h2>Próximas secciones</h2>
+<p>💳 Comparador de productos financieros</p>
+<p>🛡️ Comparador de seguros</p>
+<p>🎓 Cursos y servicios digitales</p>
+<p class="muted">Estas secciones se activarán progresivamente.</p>
+</section>
+</main>
+<footer>
+ComparaFácil Perú 1.0<br>
+<small>Plataforma demostrativa. No ofrece asesoría financiera.</small>
+</footer>
+<script>
+const questions=[
+{q:"¿Cuál es tu presupuesto?",a:["Menos de S/ 700","S/ 700 a S/ 1.500","Más de S/ 1.500"]},
+{q:"¿Qué valoras más?",a:["Batería","Cámara","Rendimiento"]},
+{q:"¿Para qué usarás tu celular?",a:["Redes sociales","Trabajo y estudios","Juegos y entretenimiento"]}
+];
+let step=0,answers=[];
+function show(id){
+document.querySelectorAll("main section").forEach(s=>s.classList.add("hidden"));
+document.getElementById(id).classList.remove("hidden");
+window.scrollTo(0,0);
+}
+function start(){step=0;answers=[];render();show("quiz")}
+function render(){
+document.getElementById("progress").textContent="Pregunta "+(step+1)+" de 3";
+document.getElementById("question").textContent=questions[step].q;
+document.getElementById("options").innerHTML="";
+questions[step].a.forEach((a,i)=>{
+let b=document.createElement("button");
+b.className="option"+(answers[step]===i?" selected":"");
+b.textContent=a;
+b.onclick=()=>choose(i);
+document.getElementById("options").appendChild(b);
+});
+}
+function choose(i){
+answers[step]=i;
+if(step<2){step++;render()}
+else{finish()}
+}
+function back(){
+if(step>0){step--;render()}
+else{show("home")}
+}
+function finish(){
+let priority=answers[1];
+let titles=["Autonomía y batería","Fotografía y cámara","Rendimiento y velocidad"];
+let details=[
+"Busca buena capacidad de batería, autonomía comprobada y carga eficiente.",
+"Compara sensores, estabilización, calidad nocturna y almacenamiento.",
+"Compara procesador, memoria RAM, refrigeración y frecuencia de pantalla."
+];
+document.getElementById("recommendation").innerHTML=
+"<h3>"+titles[priority]+"</h3><p>"+details[priority]+"</p>"+
+"<p><b>Presupuesto:</b> "+questions[0].a[answers[0]]+"</p>"+
+"<p><b>Uso:</b> "+questions[2].a[answers[2]]+"</p>"+
+"<p class='muted'>Recomendación orientativa. No se han evaluado modelos ni precios reales.</p>";
+show("result");
+}
+</script>
+</body>
+</html>
